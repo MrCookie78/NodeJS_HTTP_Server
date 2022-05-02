@@ -19,7 +19,8 @@ const server = http.createServer((req, res) => {
 			// Route "/" avec les autres méthodes
 			else {
 				res.writeHead(405, {'content-type' : 'text/html'});
-				res.write('<h1>405 Méthode non authorisée</h1>');
+				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
+				res.write(file405);
 			}
 		}
 
