@@ -24,6 +24,22 @@ const server = http.createServer((req, res) => {
 			}
 		}
 
+		// Route de l'image
+		else if(req.url === "/public/images/image.jpg"){
+			if(req.method === 'GET'){
+				res.writeHead(200, {'content-type' : 'image/jpg'});
+				const image = fs.readFileSync(path.join(__dirname, 'public', 'images', 'image.jpg'));
+				res.write(image);
+			}
+
+			// Route avec autres méthodes
+			else {
+				res.writeHead(405, {'content-type' : 'text/html'});
+				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
+				res.write(file405);
+			}
+		}
+
 		// Gestion des routes non définies
 		else {
 			res.writeHead(404, {'content-type' : 'text/html'});
