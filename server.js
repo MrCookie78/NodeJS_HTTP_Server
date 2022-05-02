@@ -56,6 +56,22 @@ const server = http.createServer((req, res) => {
 			}
 		}
 
+		// Route du fichier script
+		else if(req.url === "/public/js/script.js"){
+			if(req.method === 'GET'){
+				res.writeHead(200, {'content-type' : 'application/javascript'});
+				const js = fs.readFileSync(path.join(__dirname, 'public', 'js', 'script.js'));
+				res.write(js);
+			}
+
+			// Route avec autres méthodes
+			else {
+				res.writeHead(405, {'content-type' : 'text/html'});
+				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
+				res.write(file405);
+			}
+		}
+
 		// Gestion des routes non définies
 		else {
 			res.writeHead(404, {'content-type' : 'text/html'});
