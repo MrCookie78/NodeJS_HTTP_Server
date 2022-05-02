@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const server = http.createServer((req, res) => {
 	let data = '';
@@ -10,13 +12,14 @@ const server = http.createServer((req, res) => {
 			// Route "/" avec la méthode GET
 			if(req.method === 'GET'){
 				res.writeHead(200, {'content-type' : 'text/html'});
-				res.write('<h1>HELLO WORLD MICAEL !</h1>');
+				const index = fs.readFileSync(path.join(__dirname, 'public', 'pages', 'index.html'), 'utf8');
+				res.write(index);
 			}
 
 			// Route "/" avec les autres méthodes
 			else {
 				res.writeHead(405, {'content-type' : 'text/html'});
-				res.write('<h1>405 Méthode non authorisée</h1');
+				res.write('<h1>405 Méthode non authorisée</h1>');
 			}
 		}
 
