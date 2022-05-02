@@ -3,14 +3,24 @@ const http = require('http');
 const server = http.createServer((req, res) => {
 	let data = '';
 
-	req.on('data', chunk => { 
-		data += chunk;
-	})
+	// Route /
+	if(req.url === "/"){
 
-	req.on('end', () => {
-		res.write('HELLO WORLD MICAEL');
-		res.end();
-	})
+		// Route / avec la méthode GET
+		if(req.method === 'GET'){
+			req.on('data', chunk => { 
+				data += chunk;
+			})
+		
+			req.on('end', () => {
+				res.writeHead(200, {'content-type' : 'text/html'});
+				res.write('<h1>HELLO WORLD MICAEL !</h1>');
+				res.end();
+			})
+		}
+		
+	}
+	
 
 } );
 
