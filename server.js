@@ -25,43 +25,18 @@ const server = http.createServer((req, res) => {
 		}
 
 		// Route de l'image
-		else if(req.url === "/public/images/image.jpg"){
+		else if(req.url.match("/public/*")){
 			if(req.method === 'GET'){
-				res.writeHead(200, {'content-type' : 'image/jpg'});
-				const image = fs.readFileSync(path.join(__dirname, 'public', 'images', 'image.jpg'));
+				file = req.url.split('/')[2].split('.');
+
+				contentType = '';
+				if(file[1] === 'js') contentType = 'application/javascript'
+				else if (file[1] === 'css') contentType = 'text/css'
+				else if (file[1] === 'jpg') contentType = 'image/jpg'
+
+				res.writeHead(200, {'content-type' : contentType});
+				const image = fs.readFileSync(path.join(__dirname, 'public', file[1], file[0] + '.' + file[1]));
 				res.write(image);
-			}
-
-			// Route avec autres méthodes
-			else {
-				res.writeHead(405, {'content-type' : 'text/html'});
-				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
-				res.write(file405);
-			}
-		}
-
-		// Route du fichier css
-		else if(req.url === "/public/css/style.css"){
-			if(req.method === 'GET'){
-				res.writeHead(200, {'content-type' : 'text/css'});
-				const css = fs.readFileSync(path.join(__dirname, 'public', 'css', 'style.css'));
-				res.write(css);
-			}
-
-			// Route avec autres méthodes
-			else {
-				res.writeHead(405, {'content-type' : 'text/html'});
-				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
-				res.write(file405);
-			}
-		}
-
-		// Route du fichier script
-		else if(req.url === "/public/js/script.js"){
-			if(req.method === 'GET'){
-				res.writeHead(200, {'content-type' : 'application/javascript'});
-				const js = fs.readFileSync(path.join(__dirname, 'public', 'js', 'script.js'));
-				res.write(js);
 			}
 
 			// Route avec autres méthodes
