@@ -27,7 +27,8 @@ const server = http.createServer((req, res) => {
 		// Gestion des routes non définies
 		else {
 			res.writeHead(404, {'content-type' : 'text/html'});
-			res.write('<h1>404 Page Introuvable</h1>');
+			const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
+			res.write(file404);
 		}
 
 	}
