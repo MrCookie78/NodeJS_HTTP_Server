@@ -8,26 +8,24 @@ const server = http.createServer((req, res) => {
 
 		// Route / avec la méthode GET
 		if(req.method === 'GET'){
-			req.on('data', chunk => { 
-				data += chunk;
-			})
-		
-			req.on('end', () => {
-				res.writeHead(200, {'content-type' : 'text/html'});
-				res.write('<h1>HELLO WORLD MICAEL !</h1>');
-				res.end();
-			})
+			res.writeHead(200, {'content-type' : 'text/html'});
+			res.write('<h1>HELLO WORLD MICAEL !</h1>');
 		}
 
 		// Route / avec les autres méthodes
 		else {
 			res.writeHead(405, {'content-type' : 'text/html'});
 			res.write('<h1>405 Méthode non authorisée</h1');
-			res.end();
 		}
-		
 	}
-	
+
+	// Gestion des routes non définies
+	else {
+		res.writeHead(404, {'content-type' : 'text/html'});
+		res.write('<h1>404 Page Introuvable</h1>');
+	}
+
+	res.end();
 
 } );
 
