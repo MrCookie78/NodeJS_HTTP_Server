@@ -18,6 +18,13 @@ const server = http.createServer((req, res) => {
 				res.end();
 			})
 		}
+
+		// Route / avec les autres méthodes
+		else {
+			res.writeHead(405, {'content-type' : 'text/html'});
+			res.write('<h1>405 Méthode non authorisée</h1');
+			res.end();
+		}
 		
 	}
 	
