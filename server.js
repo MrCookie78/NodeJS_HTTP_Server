@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const server = http.createServer((req, res) => {
 	let data = '';
@@ -10,26 +12,30 @@ const server = http.createServer((req, res) => {
 			// Route "/" avec la méthode GET
 			if(req.method === 'GET'){
 				res.writeHead(200, {'content-type' : 'text/html'});
-				res.write('<h1>HELLO WORLD MICAEL !</h1>');
+				const index = fs.readFileSync(path.join(__dirname, 'public', 'pages', 'index.html'), 'utf8');
+				res.write(index);
 			}
 
 			// Route "/" avec les autres méthodes
 			else {
 				res.writeHead(405, {'content-type' : 'text/html'});
-				res.write('<h1>405 Méthode non authorisée</h1');
+				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
+				res.write(file405);
 			}
 		}
 
 		// Gestion des routes non définies
 		else {
 			res.writeHead(404, {'content-type' : 'text/html'});
-			res.write('<h1>404 Page Introuvable</h1>');
+			const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
+			res.write(file404);
 		}
 
 	}
 	catch (err) {
 		res.writeHead(500, {'content-type' : 'text/html'});
-		res.write('<h1>500 Erreur Interne au Serveur </h1>');
+		const file500 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '500.html'), 'utf8');
+		res.write(file500);
 	}
 
 	res.end();
