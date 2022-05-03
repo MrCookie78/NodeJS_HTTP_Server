@@ -69,6 +69,26 @@ const server = http.createServer((req, res) => {
 			}
 		}
 
+		else if(req.url.match("/api/name/*")){
+			if(req.method === 'GET'){
+
+				id = parseInt(req.url.replace("/api/name/", ""));
+				object = memoryDb.get(id);
+				if(object == undefined) object = {};
+				
+				res.writeHead(200, {'content-type' : 'application/json'});
+				jsonText = JSON.stringify(object);
+				res.write(jsonText);
+			}
+
+			// Route avec autres méthodes
+			else {
+				res.writeHead(405, {'content-type' : 'text/html'});
+				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
+				res.write(file405);
+			}
+		}
+
 		// Gestion des routes non définies
 		else {
 			res.writeHead(404, {'content-type' : 'text/html'});
