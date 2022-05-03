@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { json } = require('stream/consumers');
 
 const memoryDb = new Map(); // est global
 let id = 0; // doit être global
@@ -28,6 +29,7 @@ const server = http.createServer((req, res) => {
 				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
 				res.write(file405);
 			}
+			res.end();
 		}
 
 		// Route de du dossier public
@@ -51,6 +53,7 @@ const server = http.createServer((req, res) => {
 				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
 				res.write(file405);
 			}
+			res.end();
 		}
 
 		// Route API
@@ -59,6 +62,37 @@ const server = http.createServer((req, res) => {
 				res.writeHead(200, {'content-type' : 'application/json'});
 				jsonText = JSON.stringify(Array.from(memoryDb.entries()));
 				res.write(jsonText);
+				res.end();
+			}
+			
+			else if(req.method === 'POST'){
+				req.on('data', chunk => {
+					data += chunk;
+				});
+				req.on('end', () => {
+					try{
+						data = JSON.parse(data);
+
+						if ('name' in data) {
+							memoryDb.set(id++, data);
+							res.writeHead(201, {'content-type' : 'application/json'});
+							jsonText = JSON.stringify(Array.from(memoryDb.entries()));
+							res.write(jsonText)
+						}
+
+						else{
+							res.writeHead(400, {'content-type' : 'text/html'});
+							const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
+							res.write(file400);
+						}
+					}
+					catch{
+						res.writeHead(400, {'content-type' : 'text/html'});
+						const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
+						res.write(file400);
+					}
+					res.end();
+				});
 			}
 
 			// Route avec autres méthodes
@@ -66,6 +100,7 @@ const server = http.createServer((req, res) => {
 				res.writeHead(405, {'content-type' : 'text/html'});
 				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
 				res.write(file405);
+				res.end();
 			}
 		}
 
@@ -87,6 +122,7 @@ const server = http.createServer((req, res) => {
 				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
 				res.write(file405);
 			}
+			res.end();
 		}
 
 		// Gestion des routes non définies
@@ -94,6 +130,7 @@ const server = http.createServer((req, res) => {
 			res.writeHead(404, {'content-type' : 'text/html'});
 			const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
 			res.write(file404);
+			res.end();
 		}
 
 	}
@@ -101,9 +138,8 @@ const server = http.createServer((req, res) => {
 		res.writeHead(500, {'content-type' : 'text/html'});
 		const file500 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '500.html'), 'utf8');
 		res.write(file500);
+		res.end();
 	}
-
-	res.end();
 
 } );
 
