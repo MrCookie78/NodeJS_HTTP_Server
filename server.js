@@ -107,57 +107,76 @@ const server = http.createServer((req, res) => {
 		else if(req.url.match("/api/name/*")){
 
 			if(req.method === 'GET'){
-
 				let id = parseInt(req.url.replace("/api/name/", ""));
-				object = memoryDb.get(id);
-				if(object == undefined) object = {};
+				if (memoryDb.has(id)){
+					object = memoryDb.get(id);
 				
-				res.writeHead(200, {'content-type' : 'application/json'});
-				jsonText = JSON.stringify(object);
-				res.write(jsonText);
+					res.writeHead(200, {'content-type' : 'application/json'});
+					jsonText = JSON.stringify(object);
+					res.write(jsonText);
+				}
+				else{
+					res.writeHead(404, {'content-type' : 'text/html'});
+					const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
+					res.write(file404);
+				}
 				res.end();
 			}
 
 			else if(req.method === 'PUT'){
 				let id = parseInt(req.url.replace("/api/name/", ""));
-				req.on('data', chunk => {
-					data += chunk;
-				});
-				req.on('end', () => {
-					try{
-						data = JSON.parse(data);
-
-						if ('name' in data) {
-							memoryDb.set(id, data);
-							res.writeHead(201, {'content-type' : 'application/json'});
-							jsonText = JSON.stringify(Array.from(memoryDb.entries()));
-							res.write(jsonText)
+				if(memoryDb.has(id)){
+					req.on('data', chunk => {
+						data += chunk;
+					});
+					req.on('end', () => {
+						try{
+							data = JSON.parse(data);
+	
+							if ('name' in data) {
+								memoryDb.set(id, data);
+								res.writeHead(201, {'content-type' : 'application/json'});
+								jsonText = JSON.stringify(Array.from(memoryDb.entries()));
+								res.write(jsonText)
+							}
+	
+							else{
+								res.writeHead(400, {'content-type' : 'text/html'});
+								const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
+								res.write(file400);
+							}
 						}
-
-						else{
+						catch{
 							res.writeHead(400, {'content-type' : 'text/html'});
 							const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
 							res.write(file400);
 						}
-					}
-					catch{
-						res.writeHead(400, {'content-type' : 'text/html'});
-						const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
-						res.write(file400);
-					}
+						res.end();
+					});
+				}
+				else{
+					res.writeHead(404, {'content-type' : 'text/html'});
+					const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
+					res.write(file404);
 					res.end();
-				});
+				}
 			}
 
 			else if(req.method === 'DELETE'){
 				let id = parseInt(req.url.replace("/api/name/", ""));
-				memoryDb.delete(id);
+				if(memoryDb.has(id)){
+					memoryDb.delete(id);
 
-				res.writeHead(201, {'content-type' : 'application/json'});
-				jsonText = JSON.stringify(Array.from(memoryDb.entries()));
-				res.write(jsonText)
+					res.writeHead(201, {'content-type' : 'application/json'});
+					jsonText = JSON.stringify(Array.from(memoryDb.entries()));
+					res.write(jsonText)
+				}
+				else{
+					res.writeHead(404, {'content-type' : 'text/html'});
+					const file404 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '404.html'), 'utf8');
+					res.write(file404);
+				}
 				res.end();
-
 			}
 
 			// Route avec autres méthodes
