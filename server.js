@@ -38,9 +38,9 @@ const server = http.createServer((req, res) => {
 				file = req.url.split('/')[2].split('.');
 
 				contentType = '';
-				if(file[1] === 'js') contentType = 'application/javascript'
-				else if (file[1] === 'css') contentType = 'text/css'
-				else if (file[1] === 'jpg') contentType = 'image/jpg'
+				if(file[1] === 'js') contentType = 'application/javascript';
+				else if (file[1] === 'css') contentType = 'text/css';
+				else if (file[1] === 'jpg') contentType = 'image/jpg';
 
 				res.writeHead(200, {'content-type' : contentType});
 				const image = fs.readFileSync(path.join(__dirname, 'public', file[1], file[0] + '.' + file[1]));
@@ -105,15 +105,59 @@ const server = http.createServer((req, res) => {
 		}
 
 		else if(req.url.match("/api/name/*")){
+
 			if(req.method === 'GET'){
 
-				id = parseInt(req.url.replace("/api/name/", ""));
+				let id = parseInt(req.url.replace("/api/name/", ""));
 				object = memoryDb.get(id);
 				if(object == undefined) object = {};
 				
 				res.writeHead(200, {'content-type' : 'application/json'});
 				jsonText = JSON.stringify(object);
 				res.write(jsonText);
+				res.end();
+			}
+
+			else if(req.method === 'PUT'){
+				let id = parseInt(req.url.replace("/api/name/", ""));
+				req.on('data', chunk => {
+					data += chunk;
+				});
+				req.on('end', () => {
+					try{
+						data = JSON.parse(data);
+
+						if ('name' in data) {
+							memoryDb.set(id, data);
+							res.writeHead(201, {'content-type' : 'application/json'});
+							jsonText = JSON.stringify(Array.from(memoryDb.entries()));
+							res.write(jsonText)
+						}
+
+						else{
+							res.writeHead(400, {'content-type' : 'text/html'});
+							const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
+							res.write(file400);
+						}
+					}
+					catch{
+						res.writeHead(400, {'content-type' : 'text/html'});
+						const file400 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '400.html'), 'utf8');
+						res.write(file400);
+					}
+					res.end();
+				});
+			}
+
+			else if(req.method === 'DELETE'){
+				let id = parseInt(req.url.replace("/api/name/", ""));
+				memoryDb.delete(id);
+
+				res.writeHead(201, {'content-type' : 'application/json'});
+				jsonText = JSON.stringify(Array.from(memoryDb.entries()));
+				res.write(jsonText)
+				res.end();
+
 			}
 
 			// Route avec autres méthodes
@@ -121,8 +165,9 @@ const server = http.createServer((req, res) => {
 				res.writeHead(405, {'content-type' : 'text/html'});
 				const file405 = fs.readFileSync(path.join(__dirname, 'public', 'pages', '405.html'), 'utf8');
 				res.write(file405);
+				res.end();
 			}
-			res.end();
+			
 		}
 
 		// Gestion des routes non définies
